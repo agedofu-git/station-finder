@@ -7,12 +7,13 @@ public class App {
     public static void main(String[] args) {
         String token = System.getenv("DISCORD_TOKEN");
 
-        JDABuilder.createLight(
-                token,
-                GatewayIntent.GUILD_MESSAGES,
-                GatewayIntent.MESSAGE_CONTENT
-        )
-        .addEventListeners(new BotListener())
-        .build();
+        if (token == null || token.isBlank()) {
+            throw new IllegalStateException("DISCORD_TOKEN がない");
+        }
+
+        JDABuilder.createDefault(token)
+                .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+                .addEventListeners(new PingListener())
+                .build();
     }
 }
