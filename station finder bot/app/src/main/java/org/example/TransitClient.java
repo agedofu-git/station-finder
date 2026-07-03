@@ -26,7 +26,7 @@ public class TransitClient {
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != 200) {
-            return "APIエラー: " + response.statusCode() + "\n" + response.body();
+            throw new IOException("APIエラー: " + response.statusCode());
         }
 
         return response.body();

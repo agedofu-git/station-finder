@@ -11,9 +11,11 @@ public class App {
             throw new IllegalStateException("DISCORD_TOKEN がない");
         }
 
+        TransitClient transitClient = new TransitClient();
+
         JDABuilder.createDefault(token)
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT)
-                .addEventListeners(new PingListener())
+                .addEventListeners(new PingListener(transitClient))
                 .build();
     }
 }
