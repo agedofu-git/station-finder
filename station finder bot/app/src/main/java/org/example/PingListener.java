@@ -29,31 +29,67 @@ public class PingListener extends ListenerAdapter {
         }
     }
 
-    private void handleStationCommand(MessageReceivedEvent event, String message) {
-        String stationName = message.substring("!station ".length()).trim();
+    private void handleStationCommand(
+        MessageReceivedEvent event,
+        String message
+) {
+    String stationName = message
+            .substring("!station ".length())
+            .trim();
 
-        if (stationName.isBlank()) {
-            event.getChannel().sendMessage("使い方: `!station 本厚木`").queue();
+    if (stationName.isBlank()) {
+        event.getChannel()
+                .sendMessage("使い方: `!station 本厚木`")
+                .queue();
+        return;
+    }
+
+    try {
+        var stations = transitClient.searchStations(stationName);
+
+        if (stations.isEmpty()) {
+            event.getChannel()
+                    .sendMessage("駅情報が見つかりませんでした。")
+                    .queue();
             return;
         }
 
-        try {
-            String result = transitClient.searchStationRaw(stationName);
+        StringBuilder result = new StringBuilder();
 
-            if (result == null || result.isBlank()) {
-                event.getChannel().sendMessage("駅情報が見つかりませんでした。").queue();
-                return;
-            }
+        for (station station : stations) {
+            result.append("## ")
+                    .append(station.name())
+                    .append("\n");
 
-            if (result.length() > 1800) {
-                result = result.substring(0, 1800) + "...";
-            }
+            result.append("かな: ")
+                    .append(station.nameKana())
+                    .append("\n");
 
-            event.getChannel().sendMessage("```json\n" + result + "\n```").queue();
+            result.append("事業者: ")
+                    .append(station.feedName())
+                    .append("\n");
 
-        } catch (Exception e) {
-            e.printStackTrace();
-            event.getChannel().sendMessage("検索失敗: `" + e.getMessage() + "`").queue();
+            result.append("緯度: ")
+                    .append(station.lat())
+                    .append("\n");
+
+            result.append("経度: ")
+                    .append(station.lon())
+                    .append("\n\n");
         }
+
+        event.getChannel()
+                .sendMessage(result.toString())
+                .queue();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+
+        event.getChannel()
+                .sendMessage(
+                        "検索失敗: `" + e.getMessage() + "`"
+                )
+                .queue();
     }
+}
 }

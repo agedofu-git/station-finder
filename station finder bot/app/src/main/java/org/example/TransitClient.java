@@ -7,10 +7,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class TransitClient {
     private final HttpClient client = HttpClient.newHttpClient();
-
+    private final ObjectMapper mapper = new ObjectMapper();
     public String searchStationRaw(String stationName) throws IOException, InterruptedException {
         String encoded = URLEncoder.encode(stationName, StandardCharsets.UTF_8);
 
@@ -28,6 +30,8 @@ public class TransitClient {
         if (response.statusCode() != 200) {
             throw new IOException("APIエラー: " + response.statusCode());
         }
+
+        TransitResponse transitResponse = mapper.readValue(response.body(), TransitResponse.class);
 
         return response.body();
     }
