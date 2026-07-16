@@ -18,11 +18,13 @@ repositories {
 dependencies {
     // Use JUnit Jupiter for testing.
     testImplementation libs.junit.jupiter
-    implementation 'net.dv8tion:JDA:6.4.2'
+    implementation('net.dv8tion:JDA:6.4.2') {
+        // 音声機能は使わないため、Raspberry Piでは不要なネイティブライブラリを除外する。
+        exclude group: 'club.minnced', module: 'opus-java'
+    }
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.0'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    // This dependency is used by the application.
-    implementation libs.guava
 }
 
 // Apply a specific Java toolchain to ease working on different environments.
@@ -35,6 +37,12 @@ java {
 application {
     // Define the main class for the application.
     mainClass = 'org.example.App'
+    applicationDefaultJvmArgs = [
+        '-Xms32m',
+        '-Xmx320m',
+        '-XX:+UseSerialGC',
+        '-Dfile.encoding=UTF-8'
+    ]
 }
 
 tasks.named('test') {

@@ -1,7 +1,7 @@
 package org.example;
 
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.requests.GatewayIntent;
 
 public class App {
     public static void main(String[] args) {
@@ -13,9 +13,15 @@ public class App {
 
         TransitClient transitClient = new TransitClient();
 
-        JDABuilder.createDefault(token)
-                .enableIntents(GatewayIntent.MESSAGE_CONTENT)
+        JDA jda = JDABuilder.createLight(token)
                 .addEventListeners(new PingListener(transitClient))
                 .build();
+
+        jda.updateCommands()
+                .addCommands(PingListener.commandData())
+                .queue(
+                        commands -> System.out.println("スラッシュコマンドを登録しました。"),
+                        error -> System.err.println("スラッシュコマンドの登録に失敗しました: "
+                                + error.getMessage()));
     }
 }
